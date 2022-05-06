@@ -430,27 +430,6 @@ function genereListePokemon(etatCourant) {
  * dans le champ callbacks
  */
  function footerInfoPokemon(etatCourant) {
-  /*if (!etatCourant.pokemon) return { html: "", callbacks: {} };
-  const pokemon = etatCourant.pokemon
-  const html = `<article class="media">
-          <div class="media-content">
-          ${!etatCourant.deck.includes(pokemon.PokedexNumber) ? 
-            `<button id="ajout-deck" class="is-success button" tabindex="0">
-            Ajouter à mon deck</button>` : `<button id="suppr-deck" class="is-danger button" tabindex="0">
-            Supprimer de mon deck</button>`}
-          </div>
-        </article>` */
-  /*const callbacks = {
-     "ajout-deck": {
-      onclick: ()=>{
-        Deck(etatCourant,etatCourant.deck.filter(x=>x!=pokemon.PokedexNumber))
-      }
-    },
-    "suppr-deck": {
-      onclick: ()=>{
-        Deck(etatCourant,[...etatCourant.deck,pokemon.PokedexNumber])
-      }
-    }, */
   const html = `<button id="ajout-deck" class="is-success button" tabindex="0">
   Ajouter à mon deck</button>`
   return {
@@ -603,31 +582,6 @@ function generePagePokedex(etatCourant) {
 
 function genereCorpsPage(etatCourant) {
     return generePagePokedex(etatCourant);
-}
-
-/**
- * mise à jour du deck grâce à l'appel de l'API
- * @param {Etat} etatCourant 
- * @param deck 
- */
-function Deck(etatCourant,deck) {
-  //mise à jour du deck grâce à la méthode fetch
-  fetch(serverUrl + `/deck`, 
-    {headers: {"Api-Key": etatCourant.apiKey}, 
-    method: "POST",body:JSON.stringify(deck)}).then(response => {
-    if(response.ok) {
-      response.json().then(data => {
-        //actualisation du deck
-        etatCourant.deck = data;
-        //mise à jour de la page pokemon
-        majEtatEtPage(etatCourant, {deck: data});
-      });
-    }else {
-      response.json().then(data => {
-        console.log(data);
-      });
-    }
-  });
 }
 
 //fonction recupere liste poké sur serveur avec requete fetch sur API
