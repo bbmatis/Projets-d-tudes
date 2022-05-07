@@ -611,6 +611,7 @@ function generePagePokedex(etatCourant) {
   }
 }
 
+<<<<<<< HEAD
 /**
  * Génère le code HTML du corps de la page de base, soit le pokedex. On renvoie en plus un
  * objet callbacks vide pour faire comme les autres fonctions de génération
@@ -626,6 +627,9 @@ function genereCorpsPage(etatCourant) {
  * @param {Etat} etatCourant
  * @returns un objet contenant la requete fetch
  */
+=======
+//fonction recupere liste poké sur serveur avec requete fetch sur API
+>>>>>>> 40d28cf3eb45df7dcf987f8027b2f2c8029cb08c
 async function getPokemonList() {
   return fetch(serverUrl + "/pokemon")
       .then(async(response) => { // async pour pouvoir utiliser await
