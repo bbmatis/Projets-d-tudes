@@ -175,7 +175,8 @@ function afficheModaleConnexion(etatCourant) {
  */
 function genereBoutonConnexion(etatCourant) {
   const html =
-  `${etatCourant.login != undefined ? `<a class="navbar-item"> ${etatCourant.login}</a>` : ''}
+  `${etatCourant.login != undefined ? 
+    `<a class="navbar-item"> ${etatCourant.login}</a>` : ''}
   <div class="buttons navbar-item">
     ${etatCourant.login == undefined ?
     `<a id="btn-connect" class="button is-light"> Connexion </a>` :
@@ -231,13 +232,14 @@ function genereBarreNavigation(etatCourant) {
  */
  function genereBarreRecherche(etatCourant) {
   const html = `
-    <input id="btn-search" class="input" type="text" placeholder="Rechercher un pokemon" value="${etatCourant.search || ''}" />
-    <p id="look" </p>`
+    <input id="btn-search" class="input" type="text" 
+      placeholder="Rechercher un pokemon" 
+      value="${etatCourant.search ? etatCourant.search : ''}"/>`
     const callbacks = {
       "btn-search": ()=>{
         const search = document.getElementById("btn-search").value
         majEtatEtPage(etatCourant,{search: search})
-        /*oninput = PokemonVoyant(etatCourant) */
+        
       }
     }
   return {
@@ -256,7 +258,9 @@ function genereBarreNavigation(etatCourant) {
   const {ordre,type} = TriOrdre(etatCourant);//recuperation de l'ordre et du tri
   const listePokemon = maxAffichagePokemon(etatCourant);//recuperation des pokemons à afficher
   const pokemonTrie = listePokemon.sort((a,b) => {//recuperation liste pokemon trié
-    if(type == "PokedexNumber") return ordre ? a.PokedexNumber - b.PokedexNumber : b.PokedexNumber - a.PokedexNumber;
+    if(type == "PokedexNumber") 
+      return ordre ? a.PokedexNumber - b.PokedexNumber 
+                   : b.PokedexNumber - a.PokedexNumber;
     else if (type == "name")
       return ordre?a.Name.localeCompare(b.Name) : b.Name.localeCompare(a.Name);
     else if (type == "abilities")
@@ -273,25 +277,25 @@ function genereBarreNavigation(etatCourant) {
 }
 
 /**
- * Génère le code qui défini le nombre de pokemon à afficher
- * selon l'ordre et le tri défini
+ * Gère le nombre de pokémons à afficher 
  * @param {Etat} etatCourant
  * @returns une limite de pokemon à afficher
  */
 function LimitationNbPokemon(etatCourant) {
   const maxPokemon = maxAffichagePokemon(etatCourant)
     .filter(x => x.Name.toLowerCase()
-    .includes(etatCourant.search ? etatCourant.search.toLowerCase() : ""))
-  const limitePokemon = etatCourant.limitePokemon ? etatCourant.limitePokemon : 10
+      .includes(etatCourant.search ? etatCourant.search.toLowerCase() : ""))
+  const limitePokemon = etatCourant.limitePokemon?etatCourant.limitePokemon: 10
   if(limitePokemon > maxPokemon) return maxPokemon;
   if(limitePokemon < maxPokemon && maxPokemon < 10) return maxPokemon;
-  if(limitePokemon < 10 && maxPokemon > 10) return 10;
+  if(limitePokemon < 10 && maxPokemon > 10) return 10; 
   return limitePokemon;
 }
 
 function maxAffichagePokemon(etatCourant) {
   return etatCourant.mesPokemons ? etatCourant.pokemons
-   .filter(p=>etatCourant.pokemons.includes(p.PokedexNumber)):etatCourant.pokemons;
+   .filter(p=>etatCourant.pokemons
+    .includes(p.PokedexNumber)):etatCourant.pokemons;
 }
 
 /**
@@ -319,23 +323,23 @@ function TriOrdre(etatCourant) {
   const tri = TriOrdre(etatCourant);
   return {
     html:`<thead><tr><th> Image </th>
-    <th id="tri-id"># ${tri.type == "PokedexNumber" ? tri.ordre? 'v' : '^' : ''} </th>
+    <th id="tri-id"># 
+      ${tri.type == "PokedexNumber" ? tri.ordre? 'v' : '^' : ''} </th>
     <th id="tri-name">Name ${tri.type == "name" ? tri.ordre? 'v':'^':''}</th>
     <th id="tri-abilities">Abilities
     ${tri.type=="abilities"?tri.ordre?'v':'^':''}</th>
     <th id="tri-type">Type ${tri.type == "type" ? tri.ordre? 'v':'^':''} </th>
     </tr></thead>`,
     callbacks: {
-      "tri-id": {onclick: ()=>majEtatEtPage(etatCourant,
-        {triType: "PokedexNumber", triOrdre : tri.type != "PokedexNumber" ? true : !tri.ordre})},
+      "tri-id":{onclick:()=>majEtatEtPage(etatCourant,{triType:"PokedexNumber", 
+        triOrdre : tri.type != "PokedexNumber" ? true : !tri.ordre})},
       "tri-name": {onclick: ()=>majEtatEtPage(etatCourant,
         {triType: "name", triOrdre : tri.type != "name" ? true : !tri.ordre})},
       "tri-abilities": {onclick: ()=>majEtatEtPage(etatCourant,
         {triType:"abilities",triOrdre:tri.type!="abilities"?true:!tri.ordre})},
       "tri-type": {onclick: ()=>majEtatEtPage(etatCourant,
         {triType: "type", triOrdre : tri.type != "type" ? true : !tri.ordre})},
-    }
-  }}
+  }}}
 
 /**
  * Génère le code HTML le corps de la liste de pokemon. On renvoie en plus un
@@ -375,24 +379,25 @@ function genereCorpsListePokemon(pokemons,etatCourant) {
  * la description des callbacks à enregistrer dans le champ callbacks
  */
  function generePiedPageListePokemon(etatCourant) {
-  const nbPoke = maxAffichagePokemon(etatCourant)
+  const nbPoke = maxAffichagePokemon(etatCourant).filter(x=>x.Name.toLowerCase().includes(etatCourant.search ? etatCourant.search : ""))
   const nbPokeAffiche = LimitationNbPokemon(etatCourant)
   const html = `<div class="buttons navbar-item">
       <a id="btn-plus" class="button is-success"> Plus </a>
       <a id="btn-moins" class="button is-danger"> Moins </a>
   </div>
   <div class="has text-centered"> <a>${nbPokeAffiche}</a>Pokemons </div>`
+  const callbacks = {
+    "btn-plus": {onclick: () => {majEtatEtPage(etatCourant, 
+      {nbPokeAffiche: nbPokeAffiche + 10 < nbPoke 
+        ? nbPokeAffiche + 10 > nbPoke : nbPokeAffiche + 10}),console.log(nbPoke)}},
+    "btn-moins": {onclick: () => majEtatEtPage(etatCourant, 
+      {nbPokeAffiche: nbPokeAffiche - 10 > 9
+        ? nbPokeAffiche - 10 : nbPokeAffiche}),},
+  }
   return {
     html: html,
-    callbacks: {
-      "btn-plus": {onclick: () => majEtatEtPage(etatCourant, 
-        {nbPokeAffiche: nbPokeAffiche + 10 < nbPoke 
-          ? nbPokeAffiche + 10 > nbPoke : nbPokeAffiche}),},
-      "btn-moins": {onclick: () => majEtatEtPage(etatCourant, 
-        {nbPokeAffiche: nbPokeAffiche - 10 > nbPoke 
-          ? nbPokeAffiche - 10 < nbPoke : nbPokeAffiche}),},
-    },
-  };
+    callbacks: callbacks
+  }
 }
 
 /**
@@ -430,75 +435,66 @@ function genereListePokemon(etatCourant) {
  * dans le champ callbacks
  */
  function footerInfoPokemon(etatCourant) {
-  /*if (!etatCourant.pokemon) return { html: "", callbacks: {} };
-  const pokemon = etatCourant.pokemon
-  const html = `<article class="media">
-          <div class="media-content">
-          ${!etatCourant.deck.includes(pokemon.PokedexNumber) ? 
-            `<button id="ajout-deck" class="is-success button" tabindex="0">
-            Ajouter à mon deck</button>` : `<button id="suppr-deck" class="is-danger button" tabindex="0">
-            Supprimer de mon deck</button>`}
-          </div>
-        </article>` */
-  /*const callbacks = {
-     "ajout-deck": {
-      onclick: ()=>{
-        Deck(etatCourant,etatCourant.deck.filter(x=>x!=pokemon.PokedexNumber))
-      }
-    },
-    "suppr-deck": {
-      onclick: ()=>{
-        Deck(etatCourant,[...etatCourant.deck,pokemon.PokedexNumber])
-      }
-    }, */
   const html = `<button id="ajout-deck" class="is-success button" tabindex="0">
   Ajouter à mon deck</button>`
+  const callbacks = {
+    "ajout-deck": {
+        onclick:()=>console.log("click btn deck")
+    }
+  }
   return {
     html: html, 
+    callbacks: callbacks,
+  }
+}
+
+/**
+ * Génère le code HTML de la partie gauche du body des infos des pokemons
+ * @param {Etat} etatCourant
+ * @returns un objet contenant le code HTML dans le champ html et un objet vide
+ * dans le champ callbacks
+ */
+ function bodyInfoLeftPokemon(etatCourant) {
+  if (!etatCourant.pokemon) return { html: "", callbacks: {} };
+  const pokemon = etatCourant.pokemon
+  const html = `<div class="card-content">
+    <div class="content has-text-left">
+      <p>Hit points: ${pokemon.Attack} </p>
+        <h3>Abilities</h3>
+          <ul><li>${pokemon.Abilities.join("<li></li>")} </li></ul>
+        <h3>Resistant against</h3>
+          <ul><li>${Object.keys(pokemon.Against)
+            .filter(x=>pokemon.Against[x] < 1).join("<li></li>")}</li></ul>
+        <h3>Weak against</h3>
+          <ul><li>${Object.keys(pokemon.Against)
+            .filter(x=>pokemon.Against[x] > 1).join("<li></li>")}</li></ul>
+    </div>
+  </div>`
+  return {
+    html: html,
     callbacks: {},
   }
 }
 
 /**
- * Génère le code HTML du body des infos des pokemons
+ * Génère le code HTML de la partie droite du body des infos des pokemons
  * @param {Etat} etatCourant
  * @returns un objet contenant le code HTML dans le champ html et un objet vide
  * dans le champ callbacks
  */
- function bodyInfoPokemon(etatCourant) {
+ function bodyInfoRightPokemon(etatCourant) {
   if (!etatCourant.pokemon) return { html: "", callbacks: {} };
   const pokemon = etatCourant.pokemon
   const html = `
-      <article class="media">
-        <h1 class="title">${pokemon.Name}</h1>
-      </article>
-      <div class="card-content">
-        <article class="media">
-        <div class="media-content">
-          <div class="content has-text-left">
-            <p>Hit points: ${pokemon.Attack} </p>
-              <h3>Abilities</h3>
-                <ul>
-                  <li> ${pokemon.Abilities.join("<li></li>")} </li>
-                </ul>
-              <h3>Resistant against</h3>
-                <ul>
-                  <li>${Object.keys(pokemon.Against)
-                  .filter(x=>pokemon.Against[x] < 1).join("<li></li>")}</li>
-                </ul>
-              <h3>Weak against</h3>
-                <ul>
-                  <li>${Object.keys(pokemon.Against)
-                  .filter(x=>pokemon.Against[x] > 1).join("<li></li>")}</li>
-                </ul>
-          </div>
-        </div>
-        <figure class="media-right">
-          <figure class="image is-475x475">
-            <img class="" src="${pokemon.Images.Full}""/>
-          </figure>
+  <div class="card-content">
+    <article class="media">
+      <figure class="media-right">
+        <figure class="image is-475x475">
+          <img class="" src="${pokemon.Images.Full}""/>
         </figure>
-  </article>`
+      </figure>
+    </article>
+  </div>`
   return {
     html: html,
     callbacks: {},
@@ -514,11 +510,17 @@ function genereListePokemon(etatCourant) {
 function headerInfoPokemon(etatCourant) {
   if (!etatCourant.pokemon) return { html: "", callbacks: {} };
   const pokemon = etatCourant.pokemon
-  const html = ` <div class="card-header">
-        <div class="card-header-title">
-          ${pokemon.JapaneseName} (#${pokemon.PokedexNumber})
-        </div>
-      </div>`
+  const html = ` 
+    <div class="card-header">
+      <div class="card-header-title">
+        ${pokemon.JapaneseName} (#${pokemon.PokedexNumber})
+      </div>
+    </div>
+    <div class="card-content">
+      <article class="media">
+        <h1 class="title">${pokemon.Name}</h1>
+      </article>
+    </div>`
   return {
     html: html,
     callbacks: {},
@@ -534,25 +536,52 @@ function headerInfoPokemon(etatCourant) {
  * dans le champ callbacks
  */
 function genereInfoPokemon(etatCourant) {
-    const header = headerInfoPokemon(etatCourant)
-    const body = bodyInfoPokemon(etatCourant)
-    const footer = footerInfoPokemon(etatCourant)
-    const html =
-   `<div class="card">
-      ${header.html}
-    </div>
-    <div class="card-content">
-      ${body.html}
-    </div>
-    <div class="card-footer">
-      ${footer.html}
-    </div>`
-    return {
-        html: html,
-        callbacks: {
-          ...header.callbacks,...body.callbacks,...footer.callbacks,
-        }
-    }
+  const header = headerInfoPokemon(etatCourant)
+  const leftBody = bodyInfoLeftPokemon(etatCourant)
+  const rightBody = bodyInfoRightPokemon(etatCourant)
+  const footer = footerInfoPokemon(etatCourant)
+  const html =
+  `<div class="card">${header.html}</div>
+  <div class="card-content">
+    <article class="media">
+      ${leftBody.html} 
+      ${rightBody.html}
+    </article>
+  </div>
+  <div class="card-footer">${footer.html}</div>`
+  return {
+      html: html,
+      callbacks: footer.callbacks
+  }
+}
+
+/**
+ * Génère le code HTML de la page de base, soit le pokedex. On renvoie en plus un
+ * objet callbacks vide pour faire comme les autres fonctions de génération
+ * @param {Etat} etatCourant
+ * @returns un objet contenant le code HTML dans le champ html et un objet vide
+ * dans le champ callbacks
+ */
+function ChoixPagePokedex(etatCourant) {
+  const html = `
+  <ul>
+    <li id="mes-pokemon" 
+      class="${etatCourant.mesPokemons ? "is-active": ""}">
+      <a>Mes pokemons</a></li>
+    <li id="tout-pokemon"
+      class="${etatCourant.mesPokemons ? "": "is-active"}">
+      <a>Tout les pokemons</a></li>
+  </ul>`
+  const callbacks = {
+    "mes-pokemon": {
+      onclick:()=>{majEtatEtPage(etatCourant,{mesPokemons:true})}},
+    "tout-pokemon": {
+      onclick: () => {majEtatEtPage(etatCourant, {mesPokemons: false})}},
+  }
+  return {
+      html: html,
+      callbacks: callbacks,
+  }
 }
 
 /**
@@ -566,83 +595,49 @@ function generePagePokedex(etatCourant) {
   const tabPokemon = genereListePokemon(etatCourant)
   const pokemonInfo = genereInfoPokemon(etatCourant)
   const barreRecherche = genereBarreRecherche(etatCourant)
+  const choixPage = ChoixPagePokedex(etatCourant)
   const html = `${barreRecherche.html}
-  <div class="columns"><div class="column">
-    <div class="tabs is-centered">
-        <ul>
-          <li id="mes-pokemon" 
-            class="${etatCourant.mesPokemons ? "is-active": ""}">
-            <a>Mes pokemons</a></li>
-          <li id="tout-pokemon"
-            class="${etatCourant.mesPokemons ? "": "is-active"}">
-            <a> Tout les pokemons </a> </li>
-        </ul>
-      </div>
+  <div class="columns">
+    <div class="column">
+      <div class="tabs is-centered">${choixPage.html}</div>
       <div id="tbl-pokemons">${tabPokemon.html}</div>
     </div>
     <div class="column"> ${pokemonInfo.html}</div>
   </div>`
-  const callbacks = {
-    "mes-pokemon": {
-      onclick: () => {majEtatEtPage(etatCourant, {mesPokemons: true})}
-    },
-    "tout-pokemon": {
-      onclick: () => {majEtatEtPage(etatCourant, {mesPokemons: false})}
-    },
-  }
   return {
       html: html,
-      callbacks: {
-        ...tabPokemon.callbacks,
-        ...pokemonInfo.callbacks,
-        ...barreRecherche.callbacks,
-        ...callbacks,
-      }
-  };
-}
-
-function genereCorpsPage(etatCourant) {
-    return generePagePokedex(etatCourant);
+      callbacks: {...tabPokemon.callbacks,...pokemonInfo.callbacks,
+        ...barreRecherche.callbacks,...choixPage.callbacks}
+  }
 }
 
 /**
- * mise à jour du deck grâce à l'appel de l'API
- * @param {Etat} etatCourant 
- * @param deck 
+ * Génère le code HTML du corps de la page de base, soit le pokedex. On renvoie en plus un
+ * objet callbacks vide pour faire comme les autres fonctions de génération
+ * @param {Etat} etatCourant
+ * @returns la fonction qui genere tout les elements de la page principale
  */
-function Deck(etatCourant,deck) {
-  //mise à jour du deck grâce à la méthode fetch
-  fetch(serverUrl + `/deck`, 
-    {headers: {"Api-Key": etatCourant.apiKey}, 
-    method: "POST",body:JSON.stringify(deck)}).then(response => {
-    if(response.ok) {
-      response.json().then(data => {
-        //actualisation du deck
-        etatCourant.deck = data;
-        //mise à jour de la page pokemon
-        majEtatEtPage(etatCourant, {deck: data});
-      });
-    }else {
-      response.json().then(data => {
-        console.log(data);
-      });
-    }
-  });
+function genereCorpsPage(etatCourant) {
+    return generePagePokedex(etatCourant)
 }
 
-//fonction recupere liste poké sur serveur avec requete fetch sur API
+/**
+ * Récupere la liste de pokémon sur le serveur avec une requete fetch 
+ * @param {Etat} etatCourant
+ * @returns un objet contenant la requete fetch
+ */
 async function getPokemonList() {
-    return fetch(serverUrl + "/pokemon")
-        .then(async(response) => { // async pour pouvoir utiliser await
-            if (response.status == 200) {
-              //await attend la reponse et data contient la liste des pokemons
-              const data = await response.json()
-              return data;
-            } else {
-                return []; //sinon on retourne un tab vide
-            }
-        })
-        .catch([]);
+  return fetch(serverUrl + "/pokemon")
+      .then(async(response) => { // async pour pouvoir utiliser await
+          if (response.status == 200) {
+            //await attend la reponse et data contient la liste des pokemons
+            const data = await response.json()
+            return data;
+          } else {
+            return []; //sinon on retourne un tab vide
+          }
+      })
+      .catch([]);
 }
 
 /**
