@@ -204,22 +204,21 @@ function genereBoutonConnexion(etatCourant) {
 function genereBarreNavigation(etatCourant) {
     const connexion = genereBoutonConnexion(etatCourant);
     return {
-        html: `
+      html: `
         <nav class="navbar" role="navigation" aria-label="main navigation">
           <div class="navbar">
             <div class="navbar-item"><div class="buttons">
-                <a id="btn-pokedex" class="button is-light"> Pokedex </a>
-                <a id="btn-combat" class="button is-light"> Combat </a>
+              <a id="btn-pokedex" class="button is-light"> Pokedex </a>
+              <a id="btn-combat" class="button is-light"> Combat </a>
             </div>
-            </div>
-            ${connexion.html}
           </div>
+          ${connexion.html}
         </nav>`,
-        callbacks: {
-          ...connexion.callbacks,
-          "btn-pokedex": {onclick: () => console.log("click bouton pokedex")},
-          "btn-combat": {onclick: () => console.log("click bouton combat")},
-        },
+      callbacks: {
+        ...connexion.callbacks,
+        "btn-pokedex": {onclick: () => console.log("click bouton pokedex")},
+        "btn-combat": {onclick: () => console.log("click bouton combat")},
+      },
     };
 }
 
@@ -235,13 +234,12 @@ function genereBarreNavigation(etatCourant) {
     <input id="btn-search" class="input" type="text" 
       placeholder="Rechercher un pokemon" 
       value="${etatCourant.search ? etatCourant.search : ''}"/>`
-    const callbacks = {
-      "btn-search": ()=>{
-        const search = document.getElementById("btn-search").value
-        majEtatEtPage(etatCourant,{search: search})
-        
-      }
+  const callbacks = {
+    "btn-search": ()=>{
+      const search = document.getElementById("btn-search").value
+      majEtatEtPage(etatCourant,{search: search}) 
     }
+  }
   return {
     html: html,
     callbacks: callbacks,
@@ -252,7 +250,7 @@ function genereBarreNavigation(etatCourant) {
  * Génère le code qui défini la liste de pokemon à afficher
  * selon l'ordre et le tri défini
  * @param {Etat} etatCourant
- * @returns une liste de pokemon
+ * @returns une liste avec un nombre limiter de pokemon 
  */
  function PokemonVoyant(etatCourant) {
   const {ordre,type} = TriOrdre(etatCourant);//recuperation de l'ordre et du tri
@@ -282,21 +280,21 @@ function genereBarreNavigation(etatCourant) {
  * @returns une limite de pokemon à afficher
  */
 function LimitationNbPokemon(etatCourant) {
-  const maxPokemon = maxAffichagePokemon(etatCourant)
-    .filter(x => x.Name.toLowerCase()
-      .includes(etatCourant.search ? etatCourant.search.toLowerCase() : ""))
   const limitePokemon = etatCourant.limitePokemon?etatCourant.limitePokemon: 10
-  if(limitePokemon > maxPokemon) return maxPokemon;
-  if(limitePokemon < maxPokemon && maxPokemon < 10) return maxPokemon;
-  if(limitePokemon < 10 && maxPokemon > 10) return 10; 
+  console.log(limitePokemon)
   return limitePokemon;
 }
 
+/**
+ * Gère la liste de pokémons à afficher
+ * @param {Etat} etatCourant
+ * @returns un tableau de pokemon à afficher
+ */
 function maxAffichagePokemon(etatCourant) {
   return etatCourant.mesPokemons ? etatCourant.pokemons
    .filter(p=>etatCourant.pokemons
     .includes(p.PokedexNumber)):etatCourant.pokemons;
-}
+} 
 
 /**
  * Récupère l'ordre et le type du tri de la liste de pokemons
@@ -313,10 +311,10 @@ function TriOrdre(etatCourant) {
 }
 
 /**
- * Génère le code HTML l'entete de la liste de pokemon. On renvoie en plus un
- * objet callbacks vide pour faire comme les autres fonctions de génération
+ * Génère le code HTML l'entete de la liste de pokemon. 
  * @param {Etat} etatCourant
- * @returns un objet contenant le code HTML dans le champ html et un objet vide
+ * @returns un objet contenant le code HTML dans le champ html 
+ * et un objet contenant les callbacks des tris par colonnes
  * dans le champ callbacks
  */
  function genereTeteListePokemon(etatCourant) {
@@ -379,20 +377,17 @@ function genereCorpsListePokemon(pokemons,etatCourant) {
  * la description des callbacks à enregistrer dans le champ callbacks
  */
  function generePiedPageListePokemon(etatCourant) {
-  const nbPoke = maxAffichagePokemon(etatCourant).filter(x=>x.Name.toLowerCase().includes(etatCourant.search ? etatCourant.search : ""))
-  const nbPokeAffiche = LimitationNbPokemon(etatCourant)
+  const limitePokemon = etatCourant.limitePokemon?etatCourant.limitePokemon: 10
   const html = `<div class="buttons navbar-item">
       <a id="btn-plus" class="button is-success"> Plus </a>
       <a id="btn-moins" class="button is-danger"> Moins </a>
   </div>
-  <div class="has text-centered"> <a>${nbPokeAffiche}</a>Pokemons </div>`
+  <div class="has text-centered"> <a>${limitePokemon}</a>Pokemons </div>`
   const callbacks = {
     "btn-plus": {onclick: () => {majEtatEtPage(etatCourant, 
-      {nbPokeAffiche: nbPokeAffiche + 10 < nbPoke 
-        ? nbPokeAffiche + 10 > nbPoke : nbPokeAffiche + 10}),console.log(nbPoke)}},
-    "btn-moins": {onclick: () => majEtatEtPage(etatCourant, 
-      {nbPokeAffiche: nbPokeAffiche - 10 > 9
-        ? nbPokeAffiche - 10 : nbPokeAffiche}),},
+      {limitePokemon: limitePokemon + 10})}},
+    "btn-moins": {onclick: () => {majEtatEtPage(etatCourant, 
+      {limitePokemon: limitePokemon - 10})}},
   }
   return {
     html: html,
@@ -606,12 +601,13 @@ function generePagePokedex(etatCourant) {
   </div>`
   return {
       html: html,
-      callbacks: {...tabPokemon.callbacks,...pokemonInfo.callbacks,
-        ...barreRecherche.callbacks,...choixPage.callbacks}
+      callbacks: {
+        ...barreRecherche.callbacks,...tabPokemon.callbacks,
+        ...pokemonInfo.callbacks,...choixPage.callbacks
+      }
   }
 }
 
-<<<<<<< HEAD
 /**
  * Génère le code HTML du corps de la page de base, soit le pokedex. On renvoie en plus un
  * objet callbacks vide pour faire comme les autres fonctions de génération
@@ -627,9 +623,6 @@ function genereCorpsPage(etatCourant) {
  * @param {Etat} etatCourant
  * @returns un objet contenant la requete fetch
  */
-=======
-//fonction recupere liste poké sur serveur avec requete fetch sur API
->>>>>>> 40d28cf3eb45df7dcf987f8027b2f2c8029cb08c
 async function getPokemonList() {
   return fetch(serverUrl + "/pokemon")
       .then(async(response) => { // async pour pouvoir utiliser await
