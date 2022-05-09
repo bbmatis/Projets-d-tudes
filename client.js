@@ -226,7 +226,7 @@ function genereBarreNavigation(etatCourant) {
  * Génère le code HTML de la barre de recherche. On renvoie en plus un
  * objet callbacks vide pour faire comme les autres fonctions de génération
  * @param {Etat} etatCourant
- * @returns un objet contenant le code HTML dans le champ html et un objet vide
+ * @returns un objet contenant le code HTML dans le champ html et un objet contenant le callback du bouton de recherche de pokemon
  * dans le champ callbacks
  */
  function genereBarreRecherche(etatCourant) {
@@ -235,9 +235,10 @@ function genereBarreNavigation(etatCourant) {
       placeholder="Rechercher un pokemon" 
       value="${etatCourant.search ? etatCourant.search : ''}"/>`
   const callbacks = {
-    "btn-search": ()=>{
-      const search = document.getElementById("btn-search").value
-      majEtatEtPage(etatCourant,{search: search}) 
+    "btn-search": {
+      onchange: (()=>{
+        majEtatEtPage(etatCourant,{search: document.getElementById("btn-search").value})
+      })
     }
   }
   return {
@@ -250,7 +251,7 @@ function genereBarreNavigation(etatCourant) {
  * Génère le code qui défini la liste de pokemon à afficher
  * selon l'ordre et le tri défini
  * @param {Etat} etatCourant
- * @returns une liste avec un nombre limiter de pokemon 
+ * @returns une liste avec un nombre limité de pokemon 
  */
  function PokemonVoyant(etatCourant) {
   const {ordre,type} = TriOrdre(etatCourant);//recuperation de l'ordre et du tri
@@ -292,8 +293,8 @@ function LimitationNbPokemon(etatCourant) {
  */
 function maxAffichagePokemon(etatCourant) {
   return etatCourant.mesPokemons ? etatCourant.pokemons
-   .filter(p=>etatCourant.pokemons
-    .includes(p.PokedexNumber)):etatCourant.pokemons;
+   .filter(y=>etatCourant.pokemons
+    .includes(y.PokedexNumber)):etatCourant.pokemons;
 } 
 
 /**
@@ -347,7 +348,8 @@ function TriOrdre(etatCourant) {
  * dans le champ callbacks
  */
 function genereCorpsListePokemon(pokemons,etatCourant) {
-  const ligneTableau = pokemons.map((pokemon) => //on crée un tableau avec html pour chaque ligne du tableau
+  const ligneTableau = pokemons.filter((pokemon) => pokemon.Name.toLowerCase()
+    .includes(etatCourant.search.toLowerCase())).map((pokemon) => //on crée un tableau avec html pour chaque ligne du tableau
   `<tr id="pokemon-${pokemon.PokedexNumber}"
     class=" ${etatCourant.pokemon && etatCourant.pokemon.PokedexNumber ==
       pokemon.PokedexNumber ? "is-selected" : "" }">
@@ -456,13 +458,13 @@ function genereListePokemon(etatCourant) {
     <div class="content has-text-left">
       <p>Hit points: ${pokemon.Attack} </p>
         <h3>Abilities</h3>
-          <ul><li>${pokemon.Abilities.join("<li></li>")} </li></ul>
+          <ul><li>${pokemon.Abilities.join("</li><li>")} </li></ul>
         <h3>Resistant against</h3>
           <ul><li>${Object.keys(pokemon.Against)
-            .filter(x=>pokemon.Against[x] < 1).join("<li></li>")}</li></ul>
+            .filter(x=>pokemon.Against[x] < 1).join("</li><li>")}</li></ul>
         <h3>Weak against</h3>
           <ul><li>${Object.keys(pokemon.Against)
-            .filter(x=>pokemon.Against[x] > 1).join("<li></li>")}</li></ul>
+            .filter(x=>pokemon.Against[x] > 1).join("</li><li>")}</li></ul>
     </div>
   </div>`
   return {
@@ -531,6 +533,7 @@ function headerInfoPokemon(etatCourant) {
  * dans le champ callbacks
  */
 function genereInfoPokemon(etatCourant) {
+  console.log(etatCourant)
   const header = headerInfoPokemon(etatCourant)
   const leftBody = bodyInfoLeftPokemon(etatCourant)
   const rightBody = bodyInfoRightPokemon(etatCourant)
@@ -744,6 +747,7 @@ async function initClientPokemons() {
         login: undefined,
         errLogin: undefined,
         pokemons: await getPokemonList(),
+        search: "",
     };
     console.log("init", etatInitial)
     majPage(etatInitial);
